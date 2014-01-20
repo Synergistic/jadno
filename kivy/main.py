@@ -38,14 +38,18 @@ class JadnoApp(App):
         # get any files into images directory
         # curdir = dirname(__file__)
 		
-        for card in my_deck.deck_list:
-            try:
+        for i in range( 10 ):
+            card = my_deck.deck_list[randint(0, len(my_deck.deck_list)-1)]
+            picture = Cardimg(source=card.image)
+            root.add_widget(picture)
+        # for card in my_deck.deck_list:
+            # try:
                 # load the image
-                picture = Cardimg(source=card.image)
+                # picture = Cardimg(source=card.image)
                 # add to the main field
-                root.add_widget(picture)
-            except Exception, e:
-                Logger.exception('Pictures: Unable to load <%s>' % filename)
+                # root.add_widget(picture)
+            # except Exception, e:
+                # Logger.exception('Pictures: Unable to load <%s>' % filename)
 
     def on_pause(self):
         return True
