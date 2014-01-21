@@ -49,7 +49,31 @@ class Deck( object ):
 
     def deal_card( self ):
         return self.deck_list.pop()
-			
+
+
+class Hand( object ):
+    '''a Hand is made up of 1+ Uno cards. Cards
+    can be added, or removed (i.e. playing a card)
+    '''
+
+    def __init__( self ):
+        self.card_list = []
+        self.uno = False
+
+    def __str__( self ):
+        hand_rep = " "
+        for card in self.card_list:
+		    hand_rep += str( card ) + ' '
+        return hand_rep
+
+    def add_card( self, card ):
+        self.card_list.append( card )
+
+
+    def discard_card( self, card ):
+        if card in self.card_list:
+            return self.card_list.pop( self.card_list.index( card ) )
+		
 def make_cards():
     cards = []
     for color in COLORS:
@@ -62,5 +86,8 @@ def make_cards():
                 cards.append( Card( color, rank, image ) )
 			
     return cards
+	
+def make_hand():
+	player_hand = Hand()
 	
 	

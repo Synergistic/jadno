@@ -1,6 +1,7 @@
 
 #:import kivy kivy
 
+
 FloatLayout:
     canvas:
         Color:
@@ -20,28 +21,42 @@ FloatLayout:
             text_size: self.width, None
             color: (1, 1, 1, .8)
             text: 'Jadno'
+		Label:
+			height: 24
+			text_size: self.width, None
+			color: (1, 1, 1, .8)
+			text: 'None'
 
-
+	BoxLayout:
+		padding: 10
+		spacing: 10
+		size_hint: 0.25, None
+		pos_hint: {'bottom': 0.95, 'center_x': 0.25 }
+		height: 44
+		Button:
+			height: 24
+			text_size: self.width, None
+			color: (1, 1, 1, .8)
+			text: "Let's Play!"
 
 <Cardimg>:
     # each time a picture is created, the image can delay the loading
     # as soon as the image is loaded, ensure that the center is changed
     # to the center of the screen.
-    on_size: self.center = win.Window.center
+	do_scale: False
+	do_rotation: False
+	auto_bring_to_front: False
+
     size: image.size
+	pos: root.loc
     size_hint: None, None
 
     Image:
         id: image
         source: root.source
-
-        # create initial image to be 400 pixels width
+        # create initial image
         size: 200, 300
 
-        # add shadow background
-        canvas.before:
-            Color:
-                rgba: 1,1,1,1
 
 
 
