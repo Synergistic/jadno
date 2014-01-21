@@ -30,19 +30,18 @@ FloatLayout:
 
 <Cardimg>:
 
-	do_scale: False
-	do_rotation: False
-	do_translation: root.moving
+    do_scale: False
+    do_rotation: False
+    do_translation: root.moving
 	
     size: image.size
-	pos: root.loc
-    size_hint: None, None
+    pos: root.loc
 
     Image:
         id: image
         source: root.source
         # create initial image
-        size: 200, 300
+        size: 150, 225
 
 
 <HUD>:

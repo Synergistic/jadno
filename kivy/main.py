@@ -15,11 +15,11 @@ from uno import *
 
 
 
-Config.set( 'graphics', 'width', '1280' )
-Config.set( 'graphics', 'height', '960' )
+Config.set( 'graphics', 'width', '1024' )
+Config.set( 'graphics', 'height', '768' )
 
 class Cardimg( Scatter ):
-  '''Image widget to represent cards'''
+    '''Image widget to represent cards'''
     source = StringProperty(None)
     loc = ListProperty([0, 0])
     moving = BooleanProperty(True)
@@ -30,22 +30,22 @@ class HUD( BoxLayout ):
 class JadnoApp(App):
 
     def build(self):
-        root = self.root
-        root.add_widget( HUD() )
-        x_offset = 0
-        for card in my_hand.card_list:
-            picture = Cardimg(source=card.image, loc=[(x_offset * 80) + 50, 150] )
-            root.add_widget(picture)
-            x_offset += 1
+	root = self.root
+	root.add_widget( HUD() )
+	x_offset = 0
+	for card in my_hand.card_list:
+	    picture = Cardimg(source=card.image, loc=[(x_offset * 80) + 50, 150] )
+	    root.add_widget(picture)
+	    x_offset += 1
 		
-        start_card = Cardimg(
-		             source=the_pile.discard[-1].image, 
-					 loc=[540, 600], moving=False 
-					 )
-        root.add_widget(start_card)
+	start_card = Cardimg(
+			    source=the_pile.discard[-1].image, 
+					loc=[500, 450], moving=False 
+					)
+	root.add_widget(start_card)
 		
     def on_pause(self):
-        return True
+	return True
 		
 		
 
@@ -58,8 +58,8 @@ the_pile.add_card(my_deck.deal_card())
 my_hand = Hand()
 	
 for i in range( 7 ):
-	newly_drawn_card = my_deck.deal_card()
-	my_hand.add_card( newly_drawn_card )
+    newly_drawn_card = my_deck.deal_card()
+    my_hand.add_card( newly_drawn_card )
 
 
 if __name__ == '__main__':
