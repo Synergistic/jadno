@@ -19,6 +19,7 @@ Config.set( 'graphics', 'width', '1280' )
 Config.set( 'graphics', 'height', '960' )
 
 class Cardimg( Scatter ):
+  '''Image widget to represent cards'''
     source = StringProperty(None)
     loc = ListProperty([0, 0])
     moving = BooleanProperty(True)
