@@ -6,8 +6,9 @@ from os.path import join, dirname
 from kivy.app import App
 from kivy.logger import Logger
 from kivy.uix.scatter import Scatter
+from kivy.uix.boxlayout import BoxLayout
 
-from kivy.properties import StringProperty, ListProperty, ObjectProperty
+from kivy.properties import StringProperty, ListProperty, BooleanProperty
 from kivy.config import Config
 
 from uno import *
@@ -18,30 +19,30 @@ Config.set( 'graphics', 'width', '1280' )
 Config.set( 'graphics', 'height', '960' )
 
 class Cardimg( Scatter ):
-    '''Picture is the class that will show the image with a white border and a
-    shadow. They are nothing here because almost everything is inside the
-    picture.kv. Check the rule named <Picture> inside the file, and you'll see
-    how the Picture() is really constructed and used.
-
-    The source property will be the filename to show.
-    '''
-
     source = StringProperty(None)
     loc = ListProperty([0, 0])
-
+    moving = BooleanProperty(True)
+	
+class HUD( BoxLayout ):
+	pass
+	
 class JadnoApp(App):
 
     def build(self):
-
-        # the root is created in pictures.kv
         root = self.root
-
+        root.add_widget( HUD() )
         x_offset = 0
         for card in my_hand.card_list:
             picture = Cardimg(source=card.image, loc=[(x_offset * 80) + 50, 150] )
             root.add_widget(picture)
             x_offset += 1
-
+		
+        start_card = Cardimg(
+		             source=the_pile.discard[-1].image, 
+					 loc=[540, 600], moving=False 
+					 )
+        root.add_widget(start_card)
+		
     def on_pause(self):
         return True
 		
@@ -49,6 +50,9 @@ class JadnoApp(App):
 
 my_deck = Deck(make_cards())
 my_deck.shuffle()
+
+the_pile = Discard()
+the_pile.add_card(my_deck.deal_card())
 
 my_hand = Hand()
 	

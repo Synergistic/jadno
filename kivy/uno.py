@@ -50,7 +50,6 @@ class Deck( object ):
     def deal_card( self ):
         return self.deck_list.pop()
 
-
 class Hand( object ):
     '''a Hand is made up of 1+ Uno cards. Cards
     can be added, or removed (i.e. playing a card)
@@ -73,6 +72,20 @@ class Hand( object ):
     def discard_card( self, card ):
         if card in self.card_list:
             return self.card_list.pop( self.card_list.index( card ) )
+		
+class Discard( object ):
+    '''The pile where players discard their Cards'''
+
+    def __init__( self ):
+        self.discard = []
+	 
+    def __str__( self ):
+        discard_rep = str( len( self.discard ) ) + ' ' + str( self.discard[ -1 ] )
+        return discard_rep
+
+    def add_card( self, card ):
+        self.discard.append( card )
+	    
 		
 def make_cards():
     cards = []
