@@ -1,7 +1,7 @@
 #UNO the game "Jadno"
 import os
 import random
-#test
+
 RANKS = [ '0', '1', '1', '2', '2', '3', '3', '4', '4', '5', '5', 
         '6', '6', '7', '7', '8', '8', '9', '9', 's', 's', 'r', 'r', 
 		'd2', 'd2', 'wd4', 'w' ]
@@ -62,14 +62,14 @@ class Hand( object ):
     def __str__( self ):
         hand_rep = " "
         for card in self.card_list:
-		    hand_rep += str( card ) + ' '
+            hand_rep += str( card ) + ' '
         return hand_rep
 
     def add_card( self, card ):
         self.card_list.append( card )
 
 
-    def discard_card( self, card ):
+    def discard( self, card ):
         if card in self.card_list:
             return self.card_list.pop( self.card_list.index( card ) )
 		

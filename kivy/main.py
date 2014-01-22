@@ -1,14 +1,14 @@
-
-
-from glob import glob
 from random import randint
-from os.path import join, dirname
 from kivy.app import App
-from kivy.logger import Logger
-from kivy.uix.scatter import Scatter
-from kivy.uix.boxlayout import BoxLayout
 
-from kivy.properties import StringProperty, ListProperty, BooleanProperty
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.button import Button
+from kivy.uix.image import Image
+from kivy.uix.widget import Widget
+from kivy.graphics import Color, Rectangle
+
+from kivy.properties import StringProperty, ListProperty
 from kivy.config import Config
 
 from uno import *
@@ -18,50 +18,46 @@ from uno import *
 Config.set( 'graphics', 'width', '1024' )
 Config.set( 'graphics', 'height', '768' )
 
-class Cardimg( Scatter ):
-    '''Image widget to represent cards'''
-    source = StringProperty(None)
-    loc = ListProperty([0, 0])
-    moving = BooleanProperty(True)
-	
-class HUD( BoxLayout ):
-	pass
-	
-class JadnoApp(App):
+  
 
+#The main window that contains everything
+class JadnoApp(App):
     def build(self):
 	root = self.root
-	root.add_widget( HUD() )
-	x_offset = 0
-	for card in my_hand.card_list:
-	    picture = Cardimg(source=card.image, loc=[(x_offset * 80) + 50, 150] )
-	    root.add_widget(picture)
-	    x_offset += 1
-		
-	start_card = Cardimg(
-			    source=the_pile.discard[-1].image, 
-					loc=[500, 450], moving=False 
-					)
-	root.add_widget(start_card)
-		
-    def on_pause(self):
-	return True
-		
-		
+	
+        player_cards = Widget()
+        
+        with player_cards.canvas:
+	    x = 0
+	    for card in player_hand.card_list:
+		Color(1, 1, 1, 1)
+	        c = Rectangle( pos=(64 * x, 40), size=(64, 96), source=card.image )
+	        x += 1
+	choices = BoxLayout(orientation='horizontal', 
+	pos_hint={'bottom':1}, size_hint=(1, 0.05))
+	
+	for card in player_hand.card_list:
+	    b = Button(text=str(card))
+	    choices.add_widget(b)
 
+
+        root.add_widget(choices)
+        root.add_widget(player_cards)
+
+
+	
+###Game logic###
 my_deck = Deck(make_cards())
 my_deck.shuffle()
 
-the_pile = Discard()
-the_pile.add_card(my_deck.deal_card())
-
-my_hand = Hand()
+player_hand = Hand()
+for i in range(16):
+  player_hand.add_card( my_deck.deal_card() )
+  print player_hand
+  
 	
-for i in range( 7 ):
-    newly_drawn_card = my_deck.deal_card()
-    my_hand.add_card( newly_drawn_card )
 
-
+#Start game loop
 if __name__ == '__main__':
     JadnoApp().run()
 
