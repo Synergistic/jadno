@@ -2,7 +2,7 @@
 #:import kivy kivy
 
 
-FloatLayout:
+<GameArea>:
 	
     canvas:
         Color:
@@ -27,17 +27,23 @@ FloatLayout:
 			text_size: self.width, None
 			color: (1, 1, 1, .8)
 
-<CardImage>:
-    size: 1024, 230
-    
-    canvas:
 
+<CardImage>:
+	do_rotation: False
+	do_scale: False
+	do_translation: True
+    canvas:
         Color:
-            rgb: .5, .4, 1
-       
+            a: 1
         Rectangle:
-            size: 150, 225
-        Color:
-            rgb: .3, .5, .1
-        Rectangle:
-            size: 300, 227
+            size: self.size
+			source: root.src_img
+
+<HUD>:
+	orientation: 'vertical'
+	Label:
+	Label:
+	Button:
+		text: 'Draw Card'
+		on_release: root.start_game()
+		size_hint: (0.1, 0.1)
