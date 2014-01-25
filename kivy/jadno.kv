@@ -31,7 +31,8 @@
 <CardImage>:
 	do_rotation: False
 	do_scale: False
-	do_translation: True
+	do_translation: root.moving
+
     canvas:
         Color:
             a: 1
@@ -43,8 +44,17 @@
 	orientation: 'vertical'
 	Label:
 	Button:
-		text: 'Draw Card'
+		text: 'New Game'
 		on_release: root.start_game()
 		size_hint: (0.1, 0.1)
 		pos_hint: {'center_x': 0.9}
-		
+	Button:
+		text: 'Draw Card'
+		on_release: root.add_a_card()
+		size_hint: (0.1, 0.1)
+		pos_hint: {'center_x': 0.9}
+	Button:
+		text: 'Remove Card'
+		on_release: root.remove_a_card()
+		size_hint: (0.1, 0.1)
+		pos_hint: {'center_x': 0.9}
