@@ -42,19 +42,24 @@
 
 <HUD>:
 	orientation: 'vertical'
-	Label:
+	Button:
+		size_hint: (0.1, 0.35)
+		pos_hint: {'center_x': 0.95}
 	Button:
 		text: 'New Game'
 		on_release: root.start_game()
 		size_hint: (0.1, 0.1)
-		pos_hint: {'center_x': 0.9}
+		pos_hint: {'center_x': 0.95}
 	Button:
 		text: 'Draw Card'
 		on_release: root.add_a_card()
 		size_hint: (0.1, 0.1)
-		pos_hint: {'center_x': 0.9}
+		pos_hint: {'center_x': 0.95}
 	Button:
 		text: 'Remove Card'
 		on_release: root.remove_a_card()
 		size_hint: (0.1, 0.1)
-		pos_hint: {'center_x': 0.9}
+		pos_hint: {'center_x': 0.95}
+	Button:
+		size_hint: (0.1, 0.35)
+		pos_hint: {'center_x': 0.95}
