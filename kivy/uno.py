@@ -100,7 +100,15 @@ def make_cards():
 			
     return cards
 	
-def make_hand():
-	player_hand = Hand()
-	
-	
+def is_valid_move(card, top_card):
+
+	#if the played card has the same color as discard pile
+	if card.color == top_card.color:
+	  return True
+	  
+	#if the played card has the same rank as the discard
+	elif card.rank == top_card.rank or card.rank in [ 'w', 'wd4' ]:
+	  return True
+	  
+	else:
+	  return False
