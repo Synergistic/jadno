@@ -56,35 +56,35 @@ class Hand( object ):
     '''
 
     def __init__( self ):
-        self.card_list = []
+        self.hand_list = []
         self.uno = False
 
     def __str__( self ):
         hand_rep = " "
-        for card in self.card_list:
+        for card in self.hand_list:
             hand_rep += str( card ) + ' '
         return hand_rep
 
     def add_card( self, card ):
-        self.card_list.append( card )
+        self.hand_list.append( card )
 
 
-    def discard( self, card ):
-        if card in self.card_list:
-            return self.card_list.pop( self.card_list.index( card ) )
+    def discard_card( self, card ):
+        if card in self.hand_list:
+            return self.hand_list.pop( self.hand_list.index( card ) )
 		
 class Discard( object ):
     '''The pile where players discard their Cards'''
 
     def __init__( self ):
-        self.discard = []
+        self.discard_list = []
 	 
     def __str__( self ):
-        discard_rep = str( len( self.discard ) ) + ' ' + str( self.discard[ -1 ] )
+        discard_rep = str( len( self.discard_list ) ) + ' ' + str( self.discard_list[ -1 ] )
         return discard_rep
 
     def add_card( self, card ):
-        self.discard.append( card )
+        self.discard_list.append( card )
 	    
 		
 def make_cards():
