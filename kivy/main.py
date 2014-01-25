@@ -13,19 +13,19 @@ from uno import *
 
 Config.set( 'graphics', 'width', '1024' )
 Config.set( 'graphics', 'height', '768' )
-FIRST = True
 player = None
 my_deck = None
 discard_pile = None
 playing = False
+last = False
 
 class CardImage(Scatter):
 	moving = BooleanProperty(True)
 	src_img = StringProperty(None)
-	identity = StringProperty(None)
 	card_obj = ObjectProperty(None)
 	
 	def on_touch_down(self, touch):
+		global last
 		x, y = touch.x, touch.y
 
 		# if the touch isnt on the widget we do nothing
@@ -35,8 +35,8 @@ class CardImage(Scatter):
 		touch.push()
 		touch.apply_transform_2d(self.to_local)
 		touch.pop()
-		print 'touched', self.identity
-		
+		print 'touched', str(self.card_obj)
+		last = self.card_obj
 		# if we don't have any active controls, then don't accept the touch
 		if not self.do_translation_x and \
 			not self.do_translation_y and \
@@ -77,21 +77,21 @@ class HUD(BoxLayout):
 		self.make_card_wid(d, (450, 400), move=False)
 
 	def start_game(self):
-		global my_deck, player, discard_pile, FIRST, playing
-		if not FIRST:
+		global my_deck, player, discard_pile, playing
+		if playing:
 			jadno.clear_gamearea()
-			
+
 		my_deck = Deck(make_cards())
 		discard_pile = Discard()
 		player = Hand()
 		self.start_deal()
-
+		
+		last = False
 		playing = True
-		FIRST = False
+
 
 	def make_card_wid(self, card, loc, move=True):
 		i = CardImage(src_img = card.image,
-				identity = str(card),
 				size = (150, 225),
 				size_hint = (None, None),
 				pos = loc,
@@ -111,8 +111,16 @@ class HUD(BoxLayout):
 			print "Deck is empty bro"
 
 	def remove_a_card(self):
-		if len(player.hand_list) > 0:
-			d = player.discard_card(player.hand_list[-1])
+		if not last:
+			print "No recently touched cards"
+			return 0
+			
+		elif last == self.discard_wid.card_obj:
+			print "cannot remove discard pile"
+			return 0
+			
+		elif len(player.hand_list) > 0:
+			d = player.discard_card(last)
 			self.active_card_wids.remove(self.discard_wid)
 			self.card_remove_list.append(self.discard_wid)
 			
@@ -133,7 +141,7 @@ class JadnoApp(App):
 		self.root = GameArea()
 		self.h = HUD()
 		self.root.add_widget(self.h)
-		Clock.schedule_interval(self.update, 1.0 / 10.0)
+		Clock.schedule_interval(self.update, 1.0 / 30.0)
 		return self.root
 		
 	def update(self, dt):
