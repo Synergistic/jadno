@@ -16,6 +16,8 @@ Config.set( 'graphics', 'height', '768' )
 FIRST = True
 player_hand = None
 my_deck = None
+discard_pile = None
+
 class CardImage(Scatter):
     src_img = StringProperty(None)
     identity = StringProperty(None)
@@ -56,24 +58,35 @@ class HUD(BoxLayout):
         
         for i in range(7):
             player_hand.add_card( my_deck.deal_card() )
-			
+        x = 1
         for card in player_hand.card_list:
             i = CardImage(src_img = card.image,
                         identity = str(card),
-                        size = (200, 300),
-                        size_hint = (None, None)
+                        size = (150, 225),
+                        size_hint = (None, None),
+						pos = (100 * x, 25)
                         )
-            i.top = 300
             self.card_draw_list.append(i)
-             
+            x += 1
+        d = CardImage(src_img = discard_pile.discard[-1].image,
+                    identity = str(card),
+                    size = (150, 225),
+                    size_hint = (None, None),
+                    pos = (450, 400)
+                    )                   
+        self.card_draw_list.append(d)
 
     def start_game(self):
-        global my_deck, player_hand, FIRST
+        global my_deck, player_hand, discard_pile, FIRST
         if not FIRST:
             jadno.clear_gamearea()
         my_deck = Deck(make_cards())
         my_deck.shuffle()
 
+        discard_pile = Discard()
+        discard_pile.add_card(my_deck.deal_card())
+
+		
         player_hand = Hand()
         self.start_deal()
         FIRST = False
