@@ -26,20 +26,6 @@
 			height: 24
 			text_size: self.width, None
 			color: (1, 1, 1, .8)
-
-
-<CardImage>:
-	do_rotation: False
-	do_scale: False
-	do_translation: root.moving
-
-    canvas:
-        Color:
-            a: 1
-        Rectangle:
-            size: self.size
-			source: root.src_img
-
 <HUD>:
 	orientation: 'vertical'
 	Button:
@@ -56,10 +42,24 @@
 		size_hint: (0.1, 0.1)
 		pos_hint: {'center_x': 0.95}
 	Button:
-		text: 'Remove Card'
+		text: 'Discard Card'
 		on_release: root.remove_a_card()
 		size_hint: (0.1, 0.1)
 		pos_hint: {'center_x': 0.95}
 	Button:
 		size_hint: (0.1, 0.35)
 		pos_hint: {'center_x': 0.95}
+<CardImage>:
+	do_rotation: False
+	do_scale: False
+	do_translation: root.moving
+	size: (150, 225)
+	size_hint: (None, None)
+
+    canvas:
+        Color:
+            a: 1
+        Rectangle:
+            size: self.size
+			source: root.src_img
+

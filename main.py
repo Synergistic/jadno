@@ -15,12 +15,8 @@ from uno import *
 
 Window.size = (1280, 720)
 
-player = None
-my_deck = None
-discard_pile = None
 playing = False
-last = False
-color = None
+last_touch = False
 
 class CardImage(Scatter):
 	moving = BooleanProperty(True)
@@ -28,7 +24,7 @@ class CardImage(Scatter):
 	card_obj = ObjectProperty(None)
 	
 	def on_touch_down(self, touch):
-		global last
+		global last_touch
 		x, y = touch.x, touch.y
 
 		# if the touch isnt on the widget we do nothing
@@ -39,7 +35,7 @@ class CardImage(Scatter):
 		touch.apply_transform_2d(self.to_local)
 		touch.pop()
 		print 'touched', str(self.card_obj)
-		last = self.card_obj
+		last_touch = self.card_obj
 		# if we don't have any active controls, then don't accept the touch
 		if not self.do_translation_x and \
 			not self.do_translation_y and \
@@ -58,12 +54,6 @@ class CardImage(Scatter):
 		return True
 
 class GameArea(FloatLayout):
-    pass
-	
-class HUD(BoxLayout):
-	'''This is what contains all the cards we play with as well as buttons
-	and other interactions with the interface'''
-	
 	card_draw_list = []
 	card_remove_list = []
 	active_card_wids = []
@@ -99,7 +89,7 @@ class HUD(BoxLayout):
 		discard_pile = Discard()
 		player = Hand()
 		self.start_deal()
-		last = False
+		last_touch = False
 		playing = True
 
 	def make_card_wid(self, card, loc, move=True):
@@ -108,8 +98,6 @@ class HUD(BoxLayout):
 		Discard pile will have move=False.'''
 		
 		i = CardImage(src_img = card.image,
-				size = (150, 225),
-				size_hint = (None, None),
 				pos = loc,
 				moving = move,
 				card_obj = card)
@@ -132,11 +120,11 @@ class HUD(BoxLayout):
 		'''Method to remove a card object and it's corresponding widget.'''
 		
 		#make sure user has touched a card
-		if not last:
+		if not last_touch:
 			print "No recently touched cards"
 			
 		#make sure the last card touched isn't the discard pile
-		elif last == self.discard_wid.card_obj:
+		elif last_touch == self.discard_wid.card_obj:
 			print "cannot remove discard pile"
 			
 		#make sure the player has cards to discard	
@@ -144,8 +132,8 @@ class HUD(BoxLayout):
 			print "You Win"	
 		
 		#check if it's a legal move based on game rules
-		elif is_valid_move(last, self.discard_wid.card_obj):
-			d = player.discard_card(last)
+		elif is_valid_move(last_touch, self.discard_wid.card_obj):
+			d = player.discard_card(last_touch)
 			self.active_card_wids.remove(self.discard_wid) #current discard widget no longer needed
 			self.card_remove_list.append(self.discard_wid) #to be deleted from parent widget
 			
@@ -161,7 +149,7 @@ class HUD(BoxLayout):
 		'''Method to create a new widget for the discard pile after a player
 		discards a card. Asks user about desired color of the played card is
 		a wild'''
-		
+
 		#Need to know user's desired new color when playing wild
 		if str(new_card) in ['w', 'wd4']:
 			c = BoxLayout(orientation = 'vertical')
@@ -181,7 +169,19 @@ class HUD(BoxLayout):
 		
 		#replace the old discard pile widget with a new one
 		self.make_card_wid(new_card, (450, 400), move=False)
-
+	
+class HUD(BoxLayout):
+	'''This is what contains all the widgets for the interface'''
+	
+	def add_a_card(self):
+	  jadno.root.add_a_card()
+	
+	def remove_a_card(self):
+	  jadno.root.remove_a_card()
+	
+	def start_game(self):
+	  jadno.root.start_game()
+	
 #The main window that contains everything
 class JadnoApp(App):
 
@@ -202,17 +202,17 @@ class JadnoApp(App):
 			self.removing_cards()
 		
 	def adding_cards(self):
-		for card in self.h.card_draw_list:
+		for card in self.root.card_draw_list:
 			self.root.add_widget(card)
-		self.h.card_draw_list = []
+		self.root.card_draw_list = []
 			
 	def removing_cards(self):
-		for card in self.h.card_remove_list:
+		for card in self.root.card_remove_list:
 			self.root.remove_widget(card)
 			#add that card to the discard pile
-			if card != self.h.discard_wid: 
-				self.h.update_discard(card.card_obj)	
-		self.h.card_remove_list = []
+			if card != self.root.discard_wid: 
+				self.root.update_discard(card.card_obj)	
+		self.root.card_remove_list = []
 		
 	def clear_gamearea(self):
 		self.root.clear_widgets()
