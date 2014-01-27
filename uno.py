@@ -112,3 +112,9 @@ def is_valid_move(card, top_card):
 	  
 	else:
 	  return False
+
+def has_valid_move(player, top_card ):
+	for card in player.hand_list:
+	  if is_valid_move(card, top_card):
+		return True
+	return False
