@@ -7,7 +7,8 @@ from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.spinner import Spinner
 from kivy.uix.button import Button
-from kivy.properties import StringProperty, BooleanProperty, ObjectProperty
+from kivy.properties import StringProperty, BooleanProperty, \
+			    ObjectProperty, NumericProperty
 from kivy.core.window import Window
 
 from random import randint, choice
@@ -17,6 +18,7 @@ Window.size = (1280, 720)
 
 playing = False
 last_touch = False
+turn_change = 1
 
 class CardImage(Scatter):
 	moving = BooleanProperty(True)
@@ -59,7 +61,7 @@ class GameArea(FloatLayout):
 	active_card_wids = []
 	discard_wid = None
 	
-	def start_deal(self):
+	def deal(self):
 		'''shuffles, deals seven cards, puts a card on the discard pile,
 		and makes widgets for everything'''
 		
@@ -68,27 +70,27 @@ class GameArea(FloatLayout):
 		for i in range(7):
 			c = my_deck.deal_card()
 			player.add_card(c)
-			self.make_card_wid(c, (100 * x, 25))
+			self.make_card_wid(c, ((100 * x) - 75, 25))
 			x += 1
-			
 		d =  my_deck.deal_card()
 		if d.rank in ['w', 'wd4']: #if discard starts with wild
 			d.color = choice(COLORS) #we need to give it a random color
 		discard_pile.add_card(d)
-		self.make_card_wid(d, (450, 400), move=False)
+		self.make_card_wid(d, (500, 400), move=False)
 
 	def start_game(self):
 		'''Initialize deck, discard pile, player hand objects
 		and deal cards, flip the playing variable'''
 		
-		global my_deck, player, discard_pile, playing
+		global my_deck, player, discard_pile, playing, last_touch
 		if playing: #if a game already is happening
 			jadno.clear_gamearea() #clear the board
+		self.active_card_wids = []
 
 		my_deck = Deck(make_cards())
 		discard_pile = Discard()
 		player = Hand()
-		self.start_deal()
+		self.deal()
 		last_touch = False
 		playing = True
 
@@ -112,7 +114,13 @@ class GameArea(FloatLayout):
 		if len(my_deck.deck_list) > 0:
 			c = my_deck.deal_card()
 			player.add_card(c)
-			self.make_card_wid(c, (100, 25))
+			self.make_card_wid(c, (75 * (len(player.hand_list)), 25))
+			x = 1
+			for card in self.active_card_wids:
+			  if card != self.discard_wid:
+			    card.right = (75 + (100 * x))
+			    card.top = 250
+			    x += 1
 		else:
 			print "Deck is empty bro"
 
@@ -136,7 +144,7 @@ class GameArea(FloatLayout):
 			d = player.discard_card(last_touch)
 			self.active_card_wids.remove(self.discard_wid) #current discard widget no longer needed
 			self.card_remove_list.append(self.discard_wid) #to be deleted from parent widget
-			
+			jadno.h.turns += 1
 			for card in self.active_card_wids:
 				if card.card_obj == d: #remove the played card from the active widgets and parent
 					self.active_card_wids.remove(card)
@@ -172,6 +180,7 @@ class GameArea(FloatLayout):
 	
 class HUD(BoxLayout):
 	'''This is what contains all the widgets for the interface'''
+	turns = NumericProperty(100)
 	
 	def add_a_card(self):
 	  jadno.root.add_a_card()
@@ -181,7 +190,7 @@ class HUD(BoxLayout):
 	
 	def start_game(self):
 	  jadno.root.start_game()
-	
+	  self.turns = 100
 #The main window that contains everything
 class JadnoApp(App):
 
