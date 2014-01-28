@@ -19,6 +19,7 @@ Window.size = (1280, 720)
 playing = False
 last_touch = False
 turn_change = 1
+second_draw = False
 
 class CardImage(Scatter):
 	moving = BooleanProperty(True)
@@ -36,8 +37,6 @@ class CardImage(Scatter):
 		touch.push()
 		touch.apply_transform_2d(self.to_local)
 		touch.pop()
-		print 'touched', str(self.card_obj)
-		print 'located', str(self.top), str(self.right)
 		last_touch = self.card_obj
 		# if we don't have any active controls, then don't accept the touch
 		if not self.do_translation_x and \
@@ -51,9 +50,6 @@ class CardImage(Scatter):
 		touch.grab(self)
 		self._touches.append(touch)
 		self._last_touch_pos[touch] = touch.pos
-		if self.collide_point(450, 400):
-			print "yes"
-			
 		return True
 
 class GameArea(FloatLayout):
@@ -84,7 +80,7 @@ class GameArea(FloatLayout):
 		'''Initialize deck, discard pile, player hand objects
 		and deal cards, flip the playing variable'''
 		
-		global my_deck, player, enemy, discard_pile, playing, last_touch
+		global my_deck, player, enemy, discard_pile, playing, last_touch, second_draw
 		if playing: #if a game already is happening
 			jadno.clear_gamearea() #clear the board
 		self.active_card_wids = []
@@ -96,6 +92,7 @@ class GameArea(FloatLayout):
 		self.deal()
 		last_touch = False
 		playing = True
+		second_draw = False
 
 	def make_card_wid(self, card, loc, move=True):
 		'''Takes a card object and makes it into a CardImage widget.
@@ -114,7 +111,7 @@ class GameArea(FloatLayout):
 	
 	def add_a_card(self):
 		'''Draws a card from the deck to the player's hand'''
-	
+		
 		if len(my_deck.deck_list) > 0: 
 			c = my_deck.deal_card()
 			player.add_card(c)
@@ -125,81 +122,123 @@ class GameArea(FloatLayout):
 					card.x = ((75 * x) - 50)
 					card.y = 25
 					x += 1
+			
 		else:
 			print "Deck is empty bro"
 
 	def remove_a_card(self):
 		'''Method to remove a card object and it's corresponding widget.'''
-		
 		#make sure user has touched a card
 		if not last_touch:
-			print "No recently touched cards"
+			jadno.h.message = "No recently touched cards"
 			
 		#make sure the last card touched isn't the discard pile
 		elif last_touch == self.discard_wid.card_obj:
-			print "cannot remove discard pile"
+			jadno.h.message = "cannot remove discard pile"
 			
 		#make sure the player has cards to discard	
-		elif len(player.hand_list) <= 0:
-			print "You Win"	
+		if len(player.hand_list) == 0:
+			jadno.h.message = 'No cards, start a new game!'
 		
 		#check if it's a legal move based on game rules
 		elif is_valid_move(last_touch, self.discard_wid.card_obj):
-		
+			
 			d = player.discard_card(last_touch) #discard the last touched card
-
-			for card in self.active_card_wids:
-				if card.card_obj == d: #remove the played card from players hand
-					self.active_card_wids.remove(card)
-					self.card_remove_list.append(card)
-	
-			self.update_discard(d)
-
+			if d != None:
+				for card in self.active_card_wids:
+					if card.card_obj == d: #remove the played card from players hand
+						self.active_card_wids.remove(card)
+						self.card_remove_list.append(card)
+		
+				self.update_discard(d)
+				jadno.h.message = 'Player just played a card. ' + str(last_touch)
+				if len(player.hand_list) == 0:
+					jadno.h.message = 'You won!'
 		else:
-			print "Not a valid move"
+			jadno.h.message = "Not a valid move"
 			
 	def update_discard(self, new_card):
 		'''Method to create a new widget for the discard pile after a player
 		discards a card. Asks user about desired color of the played card is
 		a wild'''
 		
+
 		#Need to know user's desired new color when playing wild
 		if str(new_card) in ['w', 'wd4'] and jadno.h.turns % 2 == 0:
+			#build a popup to ask which color to change to
 			c = BoxLayout(orientation = 'vertical')
 			c.add_widget(Label(text="Select your new color:"))
 			s = Spinner(values=['r', 'g', 'b', 'y'])
 			c.add_widget(s)
 			b = Button(text='Okay')
 			c.add_widget(b)
-			p = Popup(title="Enter color", size_hint=(0.25, 0.4), content=c, auto_dismiss=False)
+			p = Popup(title="Pick color", size_hint=(0.25, 0.4), content=c, auto_dismiss=False)
 			
 			def close_pop(b):
 				if s.text in ['r', 'g', 'b', 'y']:
 					p.dismiss()
 					new_card.color = s.text
-					jadno.root.remove_widget(self.discard_wid)
-					discard_pile.add_card(new_card)
-					self.make_card_wid(new_card, (565, 400), move=False)
-					jadno.h.turns += 1
+					self.game_rules(new_card)
 					
 			b.bind(on_release = close_pop)
 			p.open()
 		
 		else:
-			jadno.root.remove_widget(self.discard_wid)
-			discard_pile.add_card(new_card)
-			self.make_card_wid(new_card, (565, 400), move=False)
-			jadno.h.turns += 1
+			self.game_rules(new_card)
+
+	def game_rules(self, new_card):
+		global turn_change, second_draw	
+			
+		if new_card.rank == 's':
+			jadno.h.turns += 2 * turn_change
+		elif new_card.rank == 'r':
+			turn_change *= -1
+			
+		elif new_card.rank == 'd2':
+			jadno.h.turns += 2 * turn_change
+			if jadno.h.turns % 2 == 0:
+				for i in xrange(2):
+					enemy.add_card(my_deck.deal_card())
+			else:
+				for i in xrange(2):
+					self.add_a_card()			  
+				
+		elif new_card.rank == 'wd4':
+			jadno.h.turns += 2 * turn_change
+			if jadno.h.turns % 2 == 0:
+				for i in xrange(4):
+					enemy.add_card(my_deck.deal_card())
+			else:
+				for i in xrange(4):
+					self.add_a_card()
+		else:
+			jadno.h.turns += turn_change
+			
+		second_draw = False
+		jadno.root.remove_widget(self.discard_wid)
+		discard_pile.add_card(new_card)
+		self.make_card_wid(new_card, (565, 400), move=False)
+		jadno.h.top_card = str(new_card)
 		
 class HUD(BoxLayout):
 	'''This is what contains all the widgets for the interface'''
 	turns = NumericProperty(100)
+	message = StringProperty('Press New Game to begin.')
+	top_card = StringProperty('')
 	
 	def add_a_card(self):
-	  jadno.root.add_a_card()
+	  global second_draw
+	  if playing and jadno.h.turns % 2 == 0:
+		if not second_draw:
+			jadno.root.add_a_card()
+			second_draw = not second_draw
+		else:
+		  jadno.h.turns += turn_change
+		  second_draw = not second_draw
 	
 	def remove_a_card(self):
-	  jadno.root.remove_a_card()
+	  if playing and jadno.h.turns % 2 == 0:
+		jadno.root.remove_a_card()
 	
 	def start_game(self):
 	  jadno.root.start_game()
@@ -215,7 +254,7 @@ class JadnoApp(App):
 		self.h = HUD()
 		self.root.add_widget(self.h)
 		Clock.schedule_interval(self.update, 1.0 / 10.0)
-		Clock.schedule_interval(self.computer_move, 2.0)		
+		Clock.schedule_interval(self.computer_move, 2.5)		
 		return self.root
 		
 	def update(self, dt):
@@ -246,18 +285,20 @@ class JadnoApp(App):
 						card.color = choice(COLORS)
 					discard_pile.add_card(enemy.discard_card(card))
 					self.root.update_discard(card)
+					jadno.h.message = 'Computer played a card. ' + str(card)
 					return None
 			c = my_deck.deal_card()
 			enemy.add_card(c)
 	
 			if is_valid_move(c, discard_pile.discard_list[-1]):
-				if card.rank in ['w', 'wd4']:
-					card.color = choice(COLORS)
+				if c.rank in ['w', 'wd4']:
+					c.color = choice(COLORS)
 				discard_pile.add_card(enemy.discard_card(c))
 				self.root.update_discard(c)
+				jadno.h.message = 'Computer played a card. ' + str(c)
 			else:
-				print "Still no moves, I lose a turn"
-				self.h.turns += 1
+				self.h.message = 'Computer drew a card and lost the turn.'
+				self.h.turns += turn_change
 					
 #Start game loop
 jadno = JadnoApp()

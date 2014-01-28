@@ -35,8 +35,18 @@
       color: 0, 0, 0, 1
       font_size: '36sp'
       pos_hint: {'center_y': 0.95, 'center_x': 0.5}
-    
-    
+    Label:
+      text: root.message
+      color: 0, 0, 0, 1
+      font_size: '24sp'
+      pos_hint: {'center_y': 0.42, 'center_x': 0.01}
+    Label:
+      text: str(root.top_card)
+      color: 0, 0, 0, 1
+      font_size: '48sp'
+      pos_hint: {'center_y': 0.65, 'center_x': 0.15}
+      
+      
   StackLayout:
     orientation: 'tb-rl'
     Button:
@@ -51,6 +61,7 @@
       text: 'Discard Card'
       on_release: root.remove_a_card()
       size_hint: (0.3, 0.1)
+      
 <CardImage>:
   do_rotation: False
   do_scale: False
