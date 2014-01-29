@@ -13,20 +13,39 @@ class Card( object ):
     It  has a rank; 0-9, skip, reverse, draw two,
     wild, wild draw four. As well as a color; blue, green, red
     yellow'''
-
-
+	
     def __init__( self, color, rank, image ):
 	    self.rank = rank
 	    self.color = color
 	    self.image = image
 
     def __str__( self ):
-        if self.color == None:
-            return str( self.rank )
+		if self.rank == 's':
+			r = 'skip'
+		elif self.rank == 'r':
+			r = 'reverse'
+		elif self.rank == 'd2':
+			r = 'draw two'
+		elif self.rank == 'wd4':
+			r = 'wild draw four'
+		elif self.rank == 'w':
+			r = 'wild'
+		else:
+			r = self.rank
+		if self.color == None:
+			return r
 	  
-        else:
-            card_rep = self.color + str( self.rank )
-            return card_rep
+		else:
+			if self.color == 'r':
+				c = 'Red '
+			elif self.color == 'b':
+				c = 'Blue '
+			elif self.color == 'g':
+				c = 'Green '
+			elif self.color == 'y':
+				c = 'Yellow '
+		card_rep = c + r
+		return card_rep
 
 class Deck( object ):
     '''Jadno deck, made up of Jadno Card objects;
