@@ -266,7 +266,7 @@ class JadnoApp(App):
 			self.removing_cards()
 			if self.h.message == 'You won!':
 				global playing
-				playing = not playing
+				playing = False
 		if playing and self.h.turns % 2 == 1:
 			Clock.schedule_once(jadno.computer_move, 1)
 
