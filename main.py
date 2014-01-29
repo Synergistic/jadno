@@ -80,9 +80,11 @@ class GameArea(FloatLayout):
 		'''Initialize deck, discard pile, player hand objects
 		and deal cards, flip the playing variable'''
 		
-		global my_deck, player, enemy, discard_pile, playing, last_touch, second_draw
-		if playing: #if a game already is happening
-			jadno.clear_gamearea() #clear the board
+		global my_deck, player, enemy, discard_pile, playing, last_touch, second_draw, discarded_cards
+		jadno.clear_gamearea() #clear the board
+		jadno.h.message = ''
+		jadno.h.top_card = ''
+		discarded_cards = []
 		self.active_card_wids = []
 
 		my_deck = Deck(make_cards())
@@ -162,7 +164,7 @@ class GameArea(FloatLayout):
 		discards a card. Asks user about desired color of the played card is
 		a wild'''
 		
-
+		discarded_cards.append(str(new_card))
 		#Need to know user's desired new color when playing wild
 		if new_card.rank in ['w', 'wd4'] and jadno.h.turns % 2 == 0:
 			#build a popup to ask which color to change to
@@ -185,7 +187,7 @@ class GameArea(FloatLayout):
 			
 		else:
 			self.game_rules(new_card)
-
+		print discarded_cards
 	def game_rules(self, new_card):
 		global turn_change, second_draw	
 			
@@ -193,24 +195,23 @@ class GameArea(FloatLayout):
 			jadno.h.turns += 2 * turn_change
 		elif new_card.rank == 'r':
 			turn_change *= -1
-			
 		elif new_card.rank == 'd2':
-			jadno.h.turns += 2 * turn_change
 			if jadno.h.turns % 2 == 0:
 				for i in xrange(2):
 					enemy.add_card(my_deck.deal_card())
-			else:
+			elif jadno.h.turns % 2 == 1:
 				for i in xrange(2):
-					self.add_a_card()			  
-				
-		elif new_card.rank == 'wd4':
+					self.add_a_card()		
+					
 			jadno.h.turns += 2 * turn_change
+		elif new_card.rank == 'wd4':
 			if jadno.h.turns % 2 == 0:
 				for i in xrange(4):
 					enemy.add_card(my_deck.deal_card())
-			else:
+			elif jadno.h.turns % 2 == 1:
 				for i in xrange(4):
 					self.add_a_card()
+			jadno.h.turns += 2 * turn_change
 		else:
 			jadno.h.turns += turn_change
 			
@@ -263,8 +264,11 @@ class JadnoApp(App):
 		if playing:
 			self.adding_cards()
 			self.removing_cards()
-			if self.h.turns % 2 == 1:
-				Clock.schedule_once(jadno.computer_move, 4)
+			if self.h.message == 'You won!':
+				global playing
+				playing = not playing
+		if playing and self.h.turns % 2 == 1:
+			Clock.schedule_once(jadno.computer_move, 1)
 
 	def adding_cards(self):
 		for card in self.root.card_draw_list:
@@ -300,7 +304,6 @@ class JadnoApp(App):
 				discard_pile.add_card(enemy.discard_card(c))
 				self.root.update_discard(c)
 				jadno.h.message = 'Computer played a card.'
-				return None
 			else:
 				self.h.message = 'Computer drew a card and lost the turn.'
 				self.h.turns += turn_change
