@@ -3,10 +3,7 @@
 
 
 <GameArea>:
-	
   canvas:
-    Color:
-      rgb: 1, 1, 1
     Rectangle:
       source: 'background.jpg'
       size: self.size
@@ -30,8 +27,7 @@
 
   FloatLayout:
     Label:
-      markup: True
-      text: '[b]Turn:[/b] ' + str(root.turns - 100)
+      text: str(root.whose_turn[root.turns % 2]) + ' Turn (' + str(root.turns) +')'
       color: 0, 0, 0, 1
       font_size: '36sp'
       pos_hint: {'center_y': 0.95, 'center_x': 0.5}
@@ -39,12 +35,12 @@
       text: root.message
       color: 0, 0, 0, 1
       font_size: '24sp'
-      pos_hint: {'center_y': 0.42, 'center_x': 0.01}
+      pos_hint: {'center_y': 0.42, 'center_x': 0.5}
     Label:
       text: str(root.top_card)
       color: 0, 0, 0, 1
-      font_size: '48sp'
-      pos_hint: {'center_y': 0.65, 'center_x': 0.15}
+      font_size: '36sp'
+      pos_hint: {'center_y': 0.50, 'center_x': 0.5}
       
       
   StackLayout:
