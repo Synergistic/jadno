@@ -149,11 +149,11 @@ class GameArea(FloatLayout):
 					if card.card_obj == d: #remove the played card from players hand
 						self.active_card_wids.remove(card)
 						self.card_remove_list.append(card)
-		
 				self.update_discard(d)
-				jadno.h.message = 'Player just played a card. ' + str(last_touch)
 				if len(player.hand_list) == 0:
 					jadno.h.message = 'You won!'
+				else:
+					jadno.h.message = 'Player just played a card.'
 		else:
 			jadno.h.message = "Not a valid move"
 			
@@ -164,7 +164,7 @@ class GameArea(FloatLayout):
 		
 
 		#Need to know user's desired new color when playing wild
-		if str(new_card) in ['w', 'wd4'] and jadno.h.turns % 2 == 0:
+		if new_card.rank in ['w', 'wd4'] and jadno.h.turns % 2 == 0:
 			#build a popup to ask which color to change to
 			c = BoxLayout(orientation = 'vertical')
 			c.add_widget(Label(text="Select your new color:"))
@@ -182,7 +182,7 @@ class GameArea(FloatLayout):
 					
 			b.bind(on_release = close_pop)
 			p.open()
-		
+			
 		else:
 			self.game_rules(new_card)
 
@@ -225,6 +225,7 @@ class HUD(BoxLayout):
 	turns = NumericProperty(100)
 	message = StringProperty('Press New Game to begin.')
 	top_card = StringProperty('')
+	whose_turn = ['Player\'s', 'Computer\'s']
 	
 	def add_a_card(self):
 	  global second_draw
@@ -234,12 +235,13 @@ class HUD(BoxLayout):
 			second_draw = not second_draw
 		else:
 		  jadno.h.turns += turn_change
+		  jadno.h.message = 'You drew a card and still had no moves, lose a turn.'
 		  second_draw = not second_draw
 	
 	def remove_a_card(self):
 	  if playing and jadno.h.turns % 2 == 0:
 		jadno.root.remove_a_card()
-	
+
 	def start_game(self):
 	  jadno.root.start_game()
 	  self.turns = 100
@@ -253,8 +255,7 @@ class JadnoApp(App):
 		self.root = GameArea()
 		self.h = HUD()
 		self.root.add_widget(self.h)
-		Clock.schedule_interval(self.update, 1.0 / 10.0)
-		Clock.schedule_interval(self.computer_move, 2.5)		
+		Clock.schedule_interval(self.update, 1.0 / 10.0)	
 		return self.root
 		
 	def update(self, dt):
@@ -262,6 +263,8 @@ class JadnoApp(App):
 		if playing:
 			self.adding_cards()
 			self.removing_cards()
+			if self.h.turns % 2 == 1:
+				Clock.schedule_once(jadno.computer_move, 4)
 
 	def adding_cards(self):
 		for card in self.root.card_draw_list:
@@ -285,8 +288,9 @@ class JadnoApp(App):
 						card.color = choice(COLORS)
 					discard_pile.add_card(enemy.discard_card(card))
 					self.root.update_discard(card)
-					jadno.h.message = 'Computer played a card. ' + str(card)
+					jadno.h.message = 'Computer played a card.'
 					return None
+					
 			c = my_deck.deal_card()
 			enemy.add_card(c)
 	
@@ -295,7 +299,8 @@ class JadnoApp(App):
 					c.color = choice(COLORS)
 				discard_pile.add_card(enemy.discard_card(c))
 				self.root.update_discard(c)
-				jadno.h.message = 'Computer played a card. ' + str(c)
+				jadno.h.message = 'Computer played a card.'
+				return None
 			else:
 				self.h.message = 'Computer drew a card and lost the turn.'
 				self.h.turns += turn_change
