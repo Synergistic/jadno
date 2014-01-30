@@ -41,22 +41,23 @@
       color: 0, 0, 0, 1
       font_size: '36sp'
       pos_hint: {'center_y': 0.50, 'center_x': 0.5}
-      
+
       
   StackLayout:
-    orientation: 'tb-rl'
+    orientation: 'bt-rl'
     Button:
       text: 'New Game'
       on_release: root.start_game()
       size_hint: (0.3, 0.1)
     Button:
-      text: 'Draw Card'
+      text: root.draw_text
       on_release: root.add_a_card()
       size_hint: (0.3, 0.1)
     Button:
-      text: 'Discard Card'
+      text: 'Discard\n' + str(root.last_card)
       on_release: root.remove_a_card()
-      size_hint: (0.3, 0.1)
+      size_hint: (0.3, 0.15)
+      pos_hint: {'center_y': 0.65, 'center_x': 0.15}
       
 <CardImage>:
   do_rotation: False

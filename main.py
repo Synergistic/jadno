@@ -38,6 +38,7 @@ class CardImage(Scatter):
 		touch.apply_transform_2d(self.to_local)
 		touch.pop()
 		last_touch = self.card_obj
+		jadno.h.last_card = str(last_touch)
 		# if we don't have any active controls, then don't accept the touch
 		if not self.do_translation_x and \
 			not self.do_translation_y and \
@@ -152,6 +153,7 @@ class GameArea(FloatLayout):
 						self.active_card_wids.remove(card)
 						self.card_remove_list.append(card)
 				self.update_discard(d)
+				jadno.h.last_card = ' '
 				if len(player.hand_list) == 0:
 					jadno.h.message = 'You won!'
 				else:
@@ -227,6 +229,8 @@ class HUD(BoxLayout):
 	message = StringProperty('Press New Game to begin.')
 	top_card = StringProperty('')
 	whose_turn = ['Player\'s', 'Computer\'s']
+	last_card = StringProperty('')
+	draw_text = StringProperty('Draw Card')
 	
 	def add_a_card(self):
 	  global second_draw
@@ -234,10 +238,12 @@ class HUD(BoxLayout):
 		if not second_draw:
 			jadno.root.add_a_card()
 			second_draw = not second_draw
+			self.draw_text = 'Pass Turn'
 		else:
 		  jadno.h.turns += turn_change
 		  jadno.h.message = 'You drew a card and still had no moves, lose a turn.'
 		  second_draw = not second_draw
+		  self.draw_text = 'Draw Card'
 	
 	def remove_a_card(self):
 	  if playing and jadno.h.turns % 2 == 0:
